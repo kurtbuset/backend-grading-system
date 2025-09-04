@@ -10,7 +10,7 @@ module.exports = {
   authenticate,
   refreshToken,
   revokeToken,
-  // register,
+  register,
   verifyEmail,
   forgotPassword,
   validateResetToken,
@@ -77,7 +77,7 @@ async function finalizeAuth(account, ipAddress) {
 async function refreshToken({ token, ipAddress }) {
   const refreshToken = await getRefreshToken(token)
   const account = await refreshToken.getAccount()
-  // console.log(JSON.stringify(refreshToken, null, 2))
+  console.log(JSON.stringify(refreshToken, null, 2))
   const newRefreshToken = generateRefreshToken(account, ipAddress)
   refreshToken.revoked = Date.now()
 
@@ -103,28 +103,28 @@ async function revokeToken({ token, ipAddress }) {
 }
 
 
-// async function register(params, origin) {
-//   // validate
-//   console.log(JSON.stringify(params, null, 2))
-//   if(await db.Account.findOne({ where: { email: params.email}})) {
-//     return await sendAlreadyRegisteredEmail(params.email, origin)
-//   }
+async function register(params, origin) {
+  // validate
+  console.log(JSON.stringify(params, null, 2))
+  if(await db.Account.findOne({ where: { email: params.email}})) {
+    return await sendAlreadyRegisteredEmail(params.email, origin)
+  }
 
-//   // create account object
-//   const account = new db.Account(params)
+  // create account object
+  const account = new db.Account(params)
   
-//   // first registered account is an admin
-//   const isFirstAccount = (await db.Account.count()) === 0
-//   account.role = isFirstAccount ? Role.SuperAdmin : params.role
-//   account.verificationToken = randomTokenString()
-//   account.isActive = true
-//   // hash password
-//   account.passwordHash = await hash(params.password)
+  // first registered account is an admin
+  const isFirstAccount = (await db.Account.count()) === 0
+  account.role = isFirstAccount ? Role.SuperAdmin : params.role
+  account.verificationToken = randomTokenString()
+  account.isActive = true
+  // hash password
+  account.passwordHash = await hash(params.password)
 
-//   await account.save()
+  await account.save()
 
-//   await sendVerificationEmail(account, origin)
-// }
+  await sendVerificationEmail(account, origin)
+}
 
 async function verifyEmail({ token }) {
   const account = await db.Account.findOne({ where: { verificationToken: token }})
